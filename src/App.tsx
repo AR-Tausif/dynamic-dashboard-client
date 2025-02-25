@@ -2,54 +2,57 @@ import "./App.css";
 import { InteractiveAreaChart } from "./components/charts/interactive-area-chart";
 import { StatusCard } from "./components";
 
-function App() {
-  const dashboardElements = [
+// Example usage:
+const serverData = {
+  dashboardElements: [
     {
       type: "status-bar",
       elements: [
-        {
-          renderElement: <StatusCard className="child" />,
-          className: "child",
-        },
+        { renderElement: "StatusCard", className: "child" },
+        { renderElement: "StatusCard", className: "child" },
       ],
     },
     {
       type: "charts",
-      elements: [
-        {
-          renderElement: <InteractiveAreaChart />,
-          className: null,
-        },
-      ],
+      elements: [{ renderElement: "InteractiveAreaChart", className: null }],
     },
-  ];
-
-  const renderElement = (payload: typeof dashboardElements) => {
-    return payload.map((elements) => {
-      if (elements.type === "status-bar") {
-        return elements.elements.map((element) => {
-          return element.renderElement;
-        });
-      }
-      return;
-    });
-  };
-  console.log(renderElement(dashboardElements));
-
+  ],
+};
+function App() {
   return (
     <div className="">
-      <div className="dashboard-container">
-        {renderElement(dashboardElements)}
-      </div>
-      <div className="my-4">
-        <InteractiveAreaChart />
-      </div>
+      <Dashboard data={serverData} />
     </div>
   );
 }
 
 export default App;
 
+const componentMap = {
+  StatusCard: StatusCard,
+  InteractiveAreaChart: InteractiveAreaChart,
+  // add more components as needed
+};
 
+const Dashboard = ({ data }) => {
+  const renderElements = (elements) => {
+    return elements.map((item, index) => {
+      const Component = componentMap[item.renderElement]; // Find the corresponding component
+      if (Component) {
+        return <Component key={index} className={item.className} />;
+      }
+      return null;
+    });
+  };
 
-
+  return (
+    <div>
+      {data.dashboardElements.map((section, idx) => (
+        <div key={idx}>
+          <h3>{section.type}</h3>
+          {renderElements(section.elements)}
+        </div>
+      ))}
+    </div>
+  );
+};
